@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="light">
+<title>Kesim Ölçü Defteri</title>
+<style>
+  :root{
+    color-scheme: light;
+    --paper:#F6F2E9;
+    --paper-line:#DCD3BE;
+    --ink:#2B2620;
+    --ink-soft:#6B6255;
+    --rust:#C1501E;
+    --rust-dark:#9A3D16;
+    --wood:#B08A5E;
+    --slate:#3E5460;
+    --ok:#4F6B4A;
+    --warn:#B23A2E;
+    --card:#FCFAF4;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Menlo", "Consolas", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{color-scheme:light only;}
+  html,body{margin:0;padding:0;background-color:var(--paper) !important;color:var(--ink) !important;font-family:var(--sans);}
+  input,button,textarea,select{color-scheme:light only;}
+  body{
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px);
+    background-size: 100% 28px;
+    min-height:100vh;
+    padding-bottom:90px;
+  }
+  header{
+    position:sticky; top:0; z-index:20;
+    background-color:var(--ink) !important;
+    color:var(--paper) !important;
+    padding:14px 16px 12px;
+    border-bottom:3px solid var(--rust);
+  }
+  header .brand{
+    font-size:11px; letter-spacing:.14em; color:var(--wood) !important; text-transform:uppercase;
+    font-weight:600; margin-bottom:2px;
+  }
+  header h1{
+    margin:0; font-size:21px; font-weight:800; letter-spacing:-0.01em; color:var(--paper) !important;
+  }
+  header .sub{ font-size:12.5px; color:#C9C2B4 !important; margin-top:3px; }
+
+  nav.tabs{
+    position:sticky; top:64px; z-index:19;
+    display:flex; gap:6px; overflow-x:auto; padding:10px 12px;
+    background-color:var(--paper) !important; border-bottom:1px solid var(--paper-line);
+    scrollbar-width:none;
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{
+    flex:0 0 auto; border:1.5px solid var(--ink); background-color:var(--card) !important;
+    color:var(--ink) !important; font-family:var(--sans); font-weight:600; font-size:12.5px;
+    padding:7px 12px; border-radius:3px; white-space:nowrap; cursor:pointer;
+  }
+  nav.tabs button.active{ background-color:var(--rust) !important; border-color:var(--rust); color:#fff !important; }
+
+  main{ padding:16px 14px 10px; max-width:640px; margin:0 auto; background-color:var(--paper) !important; }
+
+  .module-head{ margin-bottom:14px; }
+  .module-head .kicker{ font-size:11px; color:var(--rust-dark) !important; font-weight:700; letter-spacing:.06em; }
+  .module-head h2{ margin:2px 0 4px; font-size:20px; color:var(--ink) !important; }
+  .module-head p{ margin:0; color:var(--ink-soft) !important; font-size:13px; line-height:1.4; }
+
+  section.panel{
+    background-color:var(--card) !important; border:1.5px solid var(--ink); border-radius:4px;
+    padding:14px; margin-bottom:16px;
+  }
+  section.panel > .panel-title{
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--slate); margin-bottom:12px; display:flex; align-items:center; gap:8px;
+  }
+  section.panel > .panel-title::after{ content:""; flex:1; height:1px; background:var(--paper-line); }
+
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; }
+  .field{ display:flex; flex-direction:column; gap:4px; }
+  .field.full{ grid-column:1/-1; }
+  .field label{ font-size:12px; color:var(--ink-soft) !important; font-weight:600; }
+  .field input[type=number], .field input[type=text]{
+    font-family:var(--mono); font-size:16px; font-weight:600; color:var(--ink) !important;
+    border:1.5px solid var(--paper-line); border-radius:3px; padding:9px 10px;
+    background-color:#fff !important; width:100%;
+  }
+  .field input:focus{ outline:none; border-color:var(--rust); }
+  .unit{ font-size:11px; color:var(--ink-soft) !important; font-family:var(--mono); }
+
+  .choice-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .choice{
+    flex:1 1 auto; text-align:center; border:1.5px solid var(--paper-line); border-radius:3px;
+    padding:9px 8px; font-size:13px; font-weight:600; color:var(--ink-soft) !important; cursor:pointer;
+    background-color:#fff !important; min-width:110px;
+  }
+  .choice.sel{ border-color:var(--rust); background-color:#FBE9E1 !important; color:var(--rust-dark) !important; }
+
+  table.cutlist{ width:100%; border-collapse:collapse; font-family:var(--mono); font-size:13.5px; background-color:var(--card) !important; }
+  table.cutlist thead th{
+    text-align:left; font-family:var(--sans); font-size:10.5px; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--ink-soft) !important; font-weight:700; padding:0 6px 6px; border-bottom:1.5px solid var(--ink);
+    background-color:var(--card) !important;
+  }
+  table.cutlist td{ padding:8px 6px; border-bottom:1px solid var(--paper-line); background-color:var(--card) !important; color:var(--ink) !important; }
+  table.cutlist tbody tr:last-child td{ border-bottom:none; }
+  table.cutlist td.label{ font-family:var(--sans); font-weight:700; font-size:13px; color:var(--ink) !important; }
+  table.cutlist td.num{ text-align:right; font-weight:600; color:var(--ink) !important; }
+  table.cutlist td.adet{ text-align:right; color:var(--slate) !important; font-weight:700; }
+  .tag{ display:inline-block; font-size:9.5px; font-family:var(--sans); font-weight:700; text-transform:uppercase;
+    letter-spacing:.04em; background:var(--slate); color:#fff; padding:1px 5px; border-radius:2px; margin-left:6px; }
+
+  .note{ display:flex; gap:8px; align-items:flex-start; font-size:12.5px; color:var(--ink-soft) !important;
+    background-color:#F1EBDD !important; border-left:3px solid var(--wood); padding:8px 10px; border-radius:2px; margin-top:10px; line-height:1.4; }
+  .note.warn{ border-left-color:var(--warn); color:var(--warn) !important; background-color:#FBEAE7 !important; }
+  .note.ok{ border-left-color:var(--ok); color:var(--ok) !important; background-color:#EEF3EC !important; }
+
+  .module-list-item{ margin-bottom:18px; }
+  .module-list-item h3{ font-size:14px; margin:0 0 8px; display:flex; justify-content:space-between; align-items:baseline; color:var(--ink) !important; }
+  .module-list-item h3 .cnt{ font-size:11px; font-family:var(--mono); color:var(--ink-soft) !important; font-weight:500; }
+
+  .fiyat-row{ display:grid; grid-template-columns:1fr 70px auto; gap:8px; align-items:center; margin-bottom:8px; }
+  .fiyat-row input{ font-family:var(--mono); font-size:14px; padding:8px; border:1.5px solid var(--paper-line); border-radius:3px; width:100%; background-color:#fff !important; color:var(--ink) !important; }
+  .fiyat-row button.del{ background:none; border:none; color:var(--warn) !important; font-size:18px; cursor:pointer; padding:4px; }
+  .fiyat-result{ font-family:var(--mono); font-size:12px; color:var(--ink-soft) !important; padding:0 2px 4px; }
+  .btn{
+    display:inline-block; background-color:var(--ink) !important; color:#fff !important; border:none; padding:10px 16px;
+    border-radius:3px; font-weight:700; font-size:13px; cursor:pointer; font-family:var(--sans);
+  }
+  .btn.rust{ background-color:var(--rust) !important; }
+  .btn.outline{ background-color:transparent !important; border:1.5px solid var(--ink); color:var(--ink) !important; }
+
+  footer.disclaimer{ max-width:640px; margin:0 auto; padding:10px 16px 40px; font-size:11px; color:var(--ink-soft) !important; text-align:center; background-color:var(--paper) !important; }
+
+  .record-save-row{ display:flex; gap:8px; }
+  .record-save-row input{ flex:1; font-family:var(--sans); font-size:14px; padding:9px 10px; border:1.5px solid var(--paper-line); border-radius:3px; background-color:#fff !important; color:var(--ink) !important; }
+  .record-card{ border:1.5px solid var(--paper-line); border-radius:4px; padding:10px 12px; margin-bottom:10px; background-color:#fff !important; }
+  .record-card .rc-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .record-card .rc-name{ font-weight:800; font-size:14.5px; color:var(--ink) !important; }
+  .record-card .rc-date{ font-size:11px; color:var(--ink-soft) !important; font-family:var(--mono); white-space:nowrap; }
+  .record-card .rc-actions{ display:flex; gap:8px; margin-top:8px; }
+  .record-card .rc-actions button{ flex:1; padding:8px; font-size:12.5px; }
+  .empty-hint{ color:var(--ink-soft) !important; font-size:13px; padding:6px 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Atölye Ölçü Defteri</div>
+  <h1 id="hTitle">Kesim Ölçü Hesaplayıcı</h1>
+  <div class="sub" id="hSub">Modül ölçülerini girin, kesim listesi otomatik hesaplansın</div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main id="main"></main>
+
+<footer class="disclaimer">Değerler cm cinsindendir. Kesim öncesi ölçüleri atölyede kontrol edin.</footer>
+
+<style>
+  /* Bazı tarayıcı/uygulamalar sistem karanlık temasına göre sayfa renklerini otomatik değiştirir.
+     Bu blok, sayfanın her zaman açık temada kalmasını zorunlu kılar. */
+  @media (prefers-color-scheme: dark){
+    html, body{ background-color:#F6F2E9 !important; color:#2B2620 !important; }
+    header{ background-color:#2B2620 !important; color:#F6F2E9 !important; }
+    nav.tabs{ background-color:#F6F2E9 !important; }
+    nav.tabs button{ background-color:#FCFAF4 !important; color:#2B2620 !important; }
+    nav.tabs button.active{ background-color:#C1501E !important; color:#fff !important; }
+    main, footer.disclaimer{ background-color:#F6F2E9 !important; }
+    section.panel, table.cutlist, table.cutlist th, table.cutlist td,
+    .field input, .choice, .fiyat-row input, .record-save-row input, .record-card{
+      background-color:#FCFAF4 !important; color:#2B2620 !important;
+    }
+    .btn{ background-color:#2B2620 !important; color:#fff !important; }
+    .btn.rust{ background-color:#C1501E !important; }
+    .btn.outline{ background-color:transparent !important; color:#2B2620 !important; }
+  }
+</style>
+
+
+<script>
+const fmt = n => {
+  if(n===null || n===undefined || n==='' || Number.isNaN(n)) return '—';
+  if(typeof n === 'string') return n;
+  const r = Math.round(n*100)/100;
+  return r.toLocaleString('tr-TR', {maximumFractionDigits:2});
+};
+
+function el(tag, attrs={}, children=[]){
+  const e = document.createElement(tag);
+  for(const k in attrs){
+    if(k==='class') e.className = attrs[k];
+    else if(k==='html') e.innerHTML = attrs[k];
+    else e.setAttribute(k, attrs[k]);
+  }
+  (Array.isArray(children)?children:[children]).forEach(c=>{
+    if(c===null||c===undefined) return;
+    e.appendChild(typeof c==='string' ? document.createTextNode(c) : c);
+  });
+  return e;
+}
+
+/* ---------------- Modül tanımları ---------------- */
+
+const modules = {
+
+  ankastre: {
+    title:'Ankastre / Fırın Modülü',
+    kicker:'DOLAP',
+    desc:'Fırın, bulaşık makinesi gibi ankastre ürünlerin oturduğu gövde.',
+    state:{ boy:77, en:60, derinlik:58, adet:1, ray:'tandem', tandemUzunluk:45, teleskopikUzunluk:45, baza:'duz' },
+    fields(s){
+      return [
+        dimGrid(s),
+        choiceField('ray','Ray Türü',[['tandem','Tandem'],['teleskopik','Teleskopik']]),
+        s.ray==='tandem' ? numField('tandemUzunluk','Tandem Uzunluk','cm') : numField('teleskopikUzunluk','Teleskopik Uzunluk','cm'),
+        choiceField('baza','Baza Türü',[['cekmeceli','Çekmeceli Baza'],['duz','Düz Baza']]),
+      ];
+    },
+    compute(s){
+      const rows = [];
+      rows.push(['ALT', s.en, s.derinlik, s.adet*1]);
+      rows.push(['YAN', s.boy-1.8, s.derinlik, s.adet*2]);
+      rows.push(['KLAPA', s.en-3.6, 10, s.adet*1]);
+      rows.push(['ARA', s.en-3.6, s.derinlik, s.adet]);
+      const cekEn = s.ray==='tandem' ? s.en-8.2 : s.en-9.8;
+      rows.push(['ÇEK (yan)', cekEn, 7, s.adet*2]);
+      const rayUzunluk = s.ray==='tandem' ? s.tandemUzunluk : s.teleskopikUzunluk;
+      const cekTaban = s.ray==='tandem' ? rayUzunluk-1 : rayUzunluk;
+      rows.push(['ÇEK (taban)', cekTaban, 9, s.adet*2]);
+      const notes = [];
+      if(s.baza==='cekmeceli'){
+        rows.push(['BAZA PANELİ', s.boy-60.5, s.en-0.3, s.adet]);
+        notes.push({t:'Çekmeceli baza cephe ve yan ölçülerini atölyede elle alın.', k:'info'});
+      } else {
+        notes.push({t:'Düz baza seçildi — ayrı baza çekmecesi kesimi yok.', k:'ok'});
+      }
+      return {rows, notes};
+    }
+  },
+
+  evye: {
+    title:'Evye / Lavabo Modülü',
+    kicker:'DOLAP',
+    desc:'Evyenin oturduğu, arkalıksız alt dolap modülü.',
+    state:{ boy:77, en:60, derinlik:58, adet:1, modul:'arkasiKisa', klapaH:10, baza:'duz' },
+    fields(s){
+      return [
+        dimGrid(s),
+        choiceField('modul','Modül Türü',[['arkasiKisa','Arkası Kısa'],['tamAlt','Tam Alt']]),
+        s.modul==='arkasiKisa' ? numField('klapaH','Klapa Yüksekliği','cm') : null,
+        choiceField('baza','Baza Türü',[['cekmeceli','Çekmeceli Baza'],['duz','Düz Baza']]),
+      ];
+    },
+    compute(s){
+      const rows = [];
+      const altBoy = s.modul==='arkasiKisa' ? s.derinlik-8 : s.derinlik;
+      rows.push(['ALT', s.en, altBoy, s.adet]);
+      rows.push(['YAN', s.boy-1.8, s.derinlik, s.adet*2]);
+      rows.push(['KLAPA', s.en-3.6, 10, s.adet*2]);
+      if(s.modul==='arkasiKisa') rows.push(['ALT KLAPA', s.en-3.6, s.klapaH, s.adet]);
+      rows.push(['KAPAK', s.en-0.3, s.boy-0.5, s.adet]);
+      const notes = [{t:'Lavabo dolabı arkalıksız üretilir.', k:'info'}];
+      if(s.baza==='cekmeceli') notes.push({t:`Baza çekmece derinliği ≈ ${fmt(s.en-9.8)} cm — cephe/yan ölçülerini elle alın.`, k:'info'});
+      else notes.push({t:'Düz baza seçildi — baza çekmecesi yok.', k:'ok'});
+      return {rows, notes};
+    }
+  },
+
+  cekmece: {
+    title:'Çekmece Modülü',
+    kicker:'DOLAP',
+    desc:'Eşit bölmeli çekmece gövdesi ve çekmece kutuları.',
+    state:{ boy:66, en:45, derinlik:55, adet:1, ray:'tandem', tandemUzunluk:45, teleskopikUzunluk:45, bolmeSayisi:3, baza:'duz' },
+    fields(s){
+      return [
+        dimGrid(s),
+        choiceField('ray','Ray Türü',[['tandem','Tandem'],['teleskopik','Teleskopik']]),
+        s.ray==='tandem' ? numField('tandemUzunluk','Tandem Uzunluk','cm') : numField('teleskopikUzunluk','Teleskopik Uzunluk','cm'),
+        numField('bolmeSayisi','Bölme Sayısı (eşit)',''),
+        choiceField('baza','Baza Türü',[['cekmeceli','Çekmeceli Baza'],['duz','Düz Baza']]),
+      ];
+    },
+    compute(s){
+      const rows = [];
+      rows.push(['ALT', s.en, s.derinlik, s.adet]);
+      rows.push(['YAN', s.boy-1.8, s.derinlik, s.adet*2]);
+      rows.push(['KLAPA', s.en-3.6, 10, s.adet*2]);
+      const n = Math.max(1, s.bolmeSayisi||1);
+      const enKapak = s.en-0.3;
+      const boyKapak = s.boy/n - 0.3;
+      const adetKapak = n*s.adet;
+      rows.push([`KAPAK ×${n} (eşit bölme)`, enKapak, boyKapak, adetKapak]);
+      const rayEnKutu = s.ray==='tandem' ? s.en-8.2 : s.en-9.8;
+      const boyOnArka = boyKapak - 5.5;
+      rows.push(['ÖN/ARKA (çekmece kutusu)', rayEnKutu, boyOnArka, adetKapak*2]);
+      const rayUzunluk = s.ray==='tandem' ? s.tandemUzunluk-1 : s.teleskopikUzunluk;
+      const boyYanlar = boyOnArka + 2;
+      rows.push(['YAN (çekmece kutusu)', rayUzunluk, boyYanlar, adetKapak*2]);
+      rows.push(['ARKALIK', s.en-1, s.boy-2, s.adet]);
+      const notes = [];
+      if(s.baza==='cekmeceli') notes.push({t:`Baza çekmece derinliği ≈ ${fmt(s.en-9.8)} cm — cephe/yan ölçülerini elle alın.`, k:'info'});
+      else notes.push({t:'Düz baza seçildi — baza çekmecesi yok.', k:'ok'});
+      notes.push({t:'Farklı boyda özel bölmeler istiyorsanız her bölmeyi ayrı modül gibi hesaplayın.', k:'info'});
+      return {rows, notes};
+    }
+  },
+
+  buzdolabi: {
+    title:'Buzdolabı Boşluğu',
+    kicker:'MODÜL',
+    desc:'Ankastre buzdolabının yerleştiği pano ve kapak ölçüleri.',
+    state:{ tamBoy:261, en:78, derinlik:50, adet:1, panoAdedi:1, panoDerinlik:63, dolapBoslugu:190 },
+    fields(s){
+      return [
+        el('div',{class:'field-grid'},[
+          numField('tamBoy','Tam Boy','cm'),
+          numField('en','En','cm'),
+          numField('derinlik','Derinlik','cm'),
+          numField('adet','Adet',''),
+        ]),
+        el('div',{class:'field-grid'},[
+          numField('panoAdedi','Pano Adedi (1/2)',''),
+          numField('panoDerinlik','Pano Derinliği','cm'),
+          numField('dolapBoslugu','Dolap Boşluğu (Yükseklik)','cm'),
+        ]),
+      ];
+    },
+    compute(s){
+      const rows = [];
+      const kalan = s.tamBoy - s.dolapBoslugu;
+      const panoAdet = s.panoAdedi>2 ? 'FAZLA' : (s.panoAdedi===0 ? 'PANO YOK' : s.panoAdedi);
+      rows.push(['PANO', s.panoDerinlik, s.tamBoy, panoAdet]);
+      rows.push(['YANLAR', kalan, s.derinlik, s.adet*2]);
+      rows.push(['ÜST - ALT', s.en-3.6, s.derinlik, s.panoAdedi===0 ? '—' : s.panoAdedi]);
+      rows.push(['KAPAK', s.en-0.5, kalan-0.5, s.adet]);
+      rows.push(['ARKALIK', s.en-0.5, kalan-0.5, s.adet]);
+      const notes=[];
+      if(kalan<0) notes.push({t:'Dolap boşluğu tam boydan büyük olamaz — ölçüleri kontrol edin.', k:'warn'});
+      else notes.push({t:`Kalan pano yüksekliği: ${fmt(kalan)} cm`, k:'info'});
+      return {rows, notes};
+    }
+  },
+
+  ustDolap: {
+    title:'Üst Dolap — Standart',
+    kicker:'DOLAP',
+    desc:'Raflı, tek gövdeli üst dolap modülü.',
+    state:{ boy:99, en:60, derinlik:33, adet:1, rafAdedi:2 },
+    fields(s){ return [dimGrid(s), numField('rafAdedi','Raf Adedi','')]; },
+    compute(s){ return ustAltDolapCompute(s, false); }
+  },
+
+  ustDolap2: {
+    title:'Üst Dolap — Dar Modül',
+    kicker:'DOLAP',
+    desc:'Rafsız, dar ölçülü üst dolap modülü (örn. davlumbaz yanı).',
+    state:{ boy:25, en:65, derinlik:40, adet:1, rafAdedi:0 },
+    fields(s){ return [dimGrid(s), numField('rafAdedi','Raf Adedi','')]; },
+    compute(s){ return ustAltDolapCompute(s, false); }
+  },
+
+  ustDolap3: {
+    title:'Üst Dolap — Dikmeli / Çift',
+    kicker:'DOLAP',
+    desc:'Geniş, ortadan dikmeli, iki kapaklı üst dolap modülü.',
+    state:{ boy:57, en:120, derinlik:33, adet:2, rafAdedi:1, dikmeAdedi:1 },
+    fields(s){ return [dimGrid(s), el('div',{class:'field-grid'},[numField('rafAdedi','Raf Adedi',''), numField('dikmeAdedi','Dikme Adedi','')])]; },
+    compute(s){ return ustAltDolapCompute(s, true); }
+  },
+
+  altDolap: {
+    title:'Alt Dolap',
+    kicker:'DOLAP',
+    desc:'Kapaklı standart alt mutfak dolabı modülü.',
+    state:{ boy:180, en:40, derinlik:40, adet:1, rafAdedi:4, kapak:'1kapak', baza:'duz' },
+    fields(s){
+      return [
+        dimGrid(s),
+        numField('rafAdedi','Raf Adedi',''),
+        choiceField('kapak','Kapak Sayısı',[['1kapak','1 Kapak'],['2kapak','2 Kapak']]),
+        choiceField('baza','Baza Türü',[['cekmeceli','Çekmeceli Baza'],['duz','Düz Baza']]),
+      ];
+    },
+    compute(s){
+      const rows=[];
+      rows.push(['ALT', s.en, s.derinlik, s.adet]);
+      rows.push(['YAN', s.boy-1.8, s.derinlik, s.adet*2]);
+      rows.push(['KLAPA', s.en-3.6, 10, s.adet*2]);
+      if(s.rafAdedi>0) rows.push(['RAF', s.en-3.6, s.derinlik-2, s.rafAdedi*s.adet]);
+      if(s.kapak==='1kapak') rows.push(['KAPAK', s.en-0.3, s.boy-0.5, s.adet]);
+      else rows.push(['KAPAK ×2', (s.en/2)-0.45, s.boy-0.5, s.adet*2]);
+      rows.push(['ARKALIK', s.en-1, s.boy-1, s.adet]);
+      const notes=[];
+      if(s.baza==='cekmeceli') notes.push({t:`Baza çekmece derinliği ≈ ${fmt(s.en-9.8)} cm.`, k:'info'});
+      else notes.push({t:'Düz baza seçildi — baza çekmecesi yok.', k:'ok'});
+      return {rows, notes};
+    }
+  },
+
+  ustKor: {
+    title:'Üst Köşe (Kör) Dolap',
+    kicker:'KÖŞE',
+    desc:'Köşeye giren üst dolap; kör bölme genişliğine göre kapak/kör paneli.',
+    state:{ boy:77, en:88, derinlik:58, adet:1, rafAdedi:1, korOlcusu:25 },
+    fields(s){ return [dimGrid(s), el('div',{class:'field-grid'},[numField('rafAdedi','Raf Adedi',''), numField('korOlcusu','Kör Kısım Ölçüsü','cm')])]; },
+    compute(s){ return korDolapCompute(s, false); }
+  },
+
+  altKor: {
+    title:'Alt Köşe (Kör) Dolap',
+    kicker:'KÖŞE',
+    desc:'Köşeye giren alt dolap; klapa ve kör bölmeli.',
+    state:{ boy:77, en:88, derinlik:58, adet:1, rafAdedi:5, korOlcusu:25 },
+    fields(s){ return [dimGrid(s), el('div',{class:'field-grid'},[numField('rafAdedi','Raf Adedi',''), numField('korOlcusu','Kör Kısım Ölçüsü','cm')])]; },
+    compute(s){ return korDolapCompute(s, true); }
+  },
+
+  fiyat: {
+    title:'Fiyat / Zam Hesabı',
+    kicker:'FİYAT',
+    desc:'Önceki fiyata zam yüzdesi uygulayıp KDV\'li ve KDV\'siz tutarı bulun.',
+    isFiyat:true,
+    rows:[ {onceki:3050, yuzde:10}, {onceki:3850, yuzde:10} ],
+  }
+};
+
+function dimGrid(s){
+  return el('div',{class:'field-grid'},[
+    numField('boy','Boy','cm'),
+    numField('en','En','cm'),
+    numField('derinlik','Derinlik','cm'),
+    numField('adet','Adet',''),
+  ]);
+}
+
+function ustAltDolapCompute(s, withDikme){
+  const rows=[];
+  rows.push(['YANLAR', s.derinlik, s.boy, s.adet*2]);
+  rows.push(['ÜST ALT', s.en-3.6, s.derinlik, s.adet*2]);
+  if(s.rafAdedi>0) rows.push(['RAF', s.en-3.6, s.derinlik-2, s.rafAdedi*s.adet]);
+  if(withDikme && s.dikmeAdedi>0) rows.push(['DİKME', s.derinlik-0.5, s.en-3.6, s.dikmeAdedi]);
+  rows.push(['KAPAK'+(withDikme?' ×2':''), s.en-0.3, s.boy-0.5, s.adet]);
+  rows.push(['ARKALIK', s.en-1, s.boy-1, s.adet]);
+  return {rows, notes:[]};
+}
+
+function korDolapCompute(s, isAlt){
+  const rows=[];
+  if(isAlt){
+    rows.push(['ALT', s.en, s.derinlik, s.adet]);
+  } else {
+    rows.push(['ALT - ÜST', s.en, s.derinlik, s.adet*2]);
+  }
+  rows.push(['YAN', s.boy-1.8, s.derinlik, s.adet*2]);
+  if(isAlt) rows.push(['KLAPA', s.en-3.6, 10, s.adet*2]);
+  rows.push(['DİKME', s.en-3.6, 8, s.adet]);
+  if(s.rafAdedi>0) rows.push(['RAF', s.en-3.6, s.derinlik-2, s.rafAdedi]);
+  const enKapak = s.korOlcusu===0 ? s.en-0.3 : (s.en-s.korOlcusu)-0.3;
+  rows.push(['KAPAK', enKapak, s.boy-0.5, s.adet]);
+  if(s.korOlcusu>0) rows.push(['KÖR', s.korOlcusu, s.boy-0.5, s.adet]);
+  rows.push(['ARKALIK', s.en-1, s.boy-1, s.adet]);
+  return {rows, notes:[]};
+}
+
+/* ---------------- UI yardımcıları ---------------- */
+
+function numField(key,label,unit){
+  const wrap = el('div',{class:'field'});
+  wrap.appendChild(el('label',{},`${label}${unit?` (${unit})`:''}`));
+  const input = el('input',{type:'number', step:'any', 'data-key':key, inputmode:'decimal'});
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function choiceField(key,label,options){
+  const wrap = el('div',{class:'field full'});
+  wrap.appendChild(el('label',{},label));
+  const row = el('div',{class:'choice-row','data-choicekey':key});
+  options.forEach(([val,txt])=>{
+    row.appendChild(el('div',{class:'choice','data-val':val}, txt));
+  });
+  wrap.appendChild(row);
+  return wrap;
+}
+
+let currentTab = 'ankastre';
+const tabOrder = ['ankastre','evye','cekmece','buzdolabi','ustDolap','ustDolap2','ustDolap3','altDolap','ustKor','altKor','fiyat','ozet','kayit'];
+const tabLabels = {
+  ankastre:'Ankastre', evye:'Evye', cekmece:'Çekmece', buzdolabi:'Buzdolabı',
+  ustDolap:'Üst Dolap', ustDolap2:'Üst Dolap (Dar)', ustDolap3:'Üst Dolap (Dikmeli)',
+  altDolap:'Alt Dolap', ustKor:'Üst Köşe', altKor:'Alt Köşe', fiyat:'Fiyat', ozet:'Özet Liste',
+  kayit:'Kayıtlar'
+};
+
+/* ---------------- Kalıcı kayıt (localStorage) ---------------- */
+
+const DRAFT_KEY = 'olcu_defteri_taslak_v1';
+const RECORDS_KEY = 'olcu_defteri_musteriler_v1';
+const dataModuleKeys = tabOrder.filter(k=>k!=='fiyat' && k!=='ozet' && k!=='kayit');
+
+// Bazı önizleme/sandbox ortamları tarayıcı hafızasına (localStorage) erişimi engelliyor.
+// Bu katman gerçek hafızayı dener; erişilemezse sessizce oturum-içi (geçici) hafızaya düşer.
+let storageOK = true;
+const memoryStore = {};
+try{
+  const t='__t__'; localStorage.setItem(t,'1'); localStorage.removeItem(t);
+}catch(e){ storageOK = false; }
+
+function storageGet(key){
+  if(storageOK){
+    try{ return localStorage.getItem(key); }catch(e){ storageOK=false; }
+  }
+  return Object.prototype.hasOwnProperty.call(memoryStore,key) ? memoryStore[key] : null;
+}
+function storageSet(key,val){
+  if(storageOK){
+    try{ localStorage.setItem(key,val); return; }catch(e){ storageOK=false; }
+  }
+  memoryStore[key] = val;
+}
+
+function snapshotCurrent(){
+  const snap = { modules:{}, fiyatRows: JSON.parse(JSON.stringify(modules.fiyat.rows)) };
+  dataModuleKeys.forEach(k=>{ snap.modules[k] = JSON.parse(JSON.stringify(modules[k].state)); });
+  return snap;
+}
+
+function applySnapshot(snap){
+  if(!snap) return;
+  dataModuleKeys.forEach(k=>{
+    if(snap.modules && snap.modules[k]) Object.assign(modules[k].state, snap.modules[k]);
+  });
+  if(snap.fiyatRows) modules.fiyat.rows = JSON.parse(JSON.stringify(snap.fiyatRows));
+}
+
+function saveDraft(){
+  try{ storageSet(DRAFT_KEY, JSON.stringify(snapshotCurrent())); }catch(e){}
+}
+
+function loadDraft(){
+  try{
+    const raw = storageGet(DRAFT_KEY);
+    if(raw) applySnapshot(JSON.parse(raw));
+  }catch(e){}
+}
+
+function getRecords(){
+  try{ return JSON.parse(storageGet(RECORDS_KEY) || '[]'); }catch(e){ return []; }
+}
+function setRecords(list){
+  try{ storageSet(RECORDS_KEY, JSON.stringify(list)); }catch(e){}
+}
+function addRecord(name){
+  const list = getRecords();
+  list.unshift({
+    id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    name: name,
+    date: new Date().toLocaleString('tr-TR'),
+    data: snapshotCurrent()
+  });
+  setRecords(list);
+}
+function deleteRecord(id){
+  setRecords(getRecords().filter(r=>r.id!==id));
+}
+function loadRecord(id){
+  const rec = getRecords().find(r=>r.id===id);
+  if(rec){ applySnapshot(rec.data); saveDraft(); }
+}
+
+function renderTabs(){
+  const nav = document.getElementById('tabs');
+  nav.innerHTML='';
+  tabOrder.forEach(key=>{
+    const btn = el('button',{}, tabLabels[key]);
+    if(key===currentTab) btn.classList.add('active');
+    btn.onclick = ()=>{ currentTab=key; renderAll(); };
+    nav.appendChild(btn);
+  });
+}
+
+function renderModulePanel(key){
+  const mod = modules[key];
+  const main = document.getElementById('main');
+  main.innerHTML='';
+
+  document.getElementById('hSub').textContent = mod.desc;
+
+  const head = el('div',{class:'module-head'},[
+    el('div',{class:'kicker'}, mod.kicker),
+    el('h2',{}, mod.title),
+    el('p',{}, mod.desc),
+  ]);
+  main.appendChild(head);
+
+  if(mod.isFiyat){ renderFiyat(mod, main); return; }
+
+  const inputPanel = el('section',{class:'panel'});
+  inputPanel.appendChild(el('div',{class:'panel-title'},'Ölçüleri Girin'));
+  const fieldsFrag = document.createElement('div');
+  mod.fields(mod.state).forEach(f=>{ if(f) fieldsFrag.appendChild(f); });
+  inputPanel.appendChild(fieldsFrag);
+  main.appendChild(inputPanel);
+
+  // fill values + attach listeners
+  inputPanel.querySelectorAll('input[data-key]').forEach(inp=>{
+    const k = inp.getAttribute('data-key');
+    inp.value = mod.state[k];
+    inp.addEventListener('input', ()=>{
+      const v = parseFloat(inp.value);
+      mod.state[k] = Number.isNaN(v) ? 0 : v;
+      renderResults(key);
+      saveDraft();
+    });
+  });
+  inputPanel.querySelectorAll('[data-choicekey]').forEach(row=>{
+    const k = row.getAttribute('data-choicekey');
+    row.querySelectorAll('.choice').forEach(c=>{
+      if(c.getAttribute('data-val')===mod.state[k]) c.classList.add('sel');
+      c.onclick = ()=>{ mod.state[k] = c.getAttribute('data-val'); renderModulePanel(key); saveDraft(); };
+    });
+  });
+
+  const resultPanel = el('section',{class:'panel',id:'resultPanel'});
+  main.appendChild(resultPanel);
+  renderResults(key);
+}
+
+function buildCutTable(rows){
+  const table = el('table',{class:'cutlist'});
+  table.appendChild(el('thead',{},el('tr',{},[
+    el('th',{},'Parça'), el('th',{},'En'), el('th',{},'Boy'), el('th',{},'Adet')
+  ])));
+  const tbody = el('tbody');
+  rows.forEach(([label,en,boy,adet])=>{
+    tbody.appendChild(el('tr',{},[
+      el('td',{class:'label'}, label),
+      el('td',{class:'num'}, fmt(en)),
+      el('td',{class:'num'}, fmt(boy)),
+      el('td',{class:'adet'}, fmt(adet)),
+    ]));
+  });
+  table.appendChild(tbody);
+  return table;
+}
+
+function renderResults(key){
+  const mod = modules[key];
+  const panel = document.getElementById('resultPanel');
+  if(!panel) return;
+  panel.innerHTML='';
+  panel.appendChild(el('div',{class:'panel-title'},'Kesim Listesi'));
+  const {rows, notes} = mod.compute(mod.state);
+  panel.appendChild(buildCutTable(rows));
+  notes.forEach(n=>{
+    panel.appendChild(el('div',{class:'note '+(n.k==='warn'?'warn':n.k==='ok'?'ok':'')}, n.t));
+  });
+}
+
+function renderFiyat(mod, main){
+  const panel = el('section',{class:'panel'});
+  panel.appendChild(el('div',{class:'panel-title'},'Fiyat Kalemleri'));
+  const list = el('div',{id:'fiyatList'});
+  panel.appendChild(list);
+  const addBtn = el('button',{class:'btn outline'}, '+ Kalem Ekle');
+  addBtn.onclick = ()=>{ mod.rows.push({onceki:0, yuzde:10}); renderFiyatList(); saveDraft(); };
+  panel.appendChild(addBtn);
+  main.appendChild(panel);
+
+  const sumPanel = el('section',{class:'panel'});
+  sumPanel.appendChild(el('div',{class:'panel-title'},'Toplam'));
+  sumPanel.appendChild(el('div',{id:'fiyatToplam'}));
+  main.appendChild(sumPanel);
+
+  function renderFiyatList(){
+    list.innerHTML='';
+    let sumOnceki=0, sumToplam=0, sumKdv=0, sumKdvHaric=0;
+    mod.rows.forEach((r,i)=>{
+      const zam = r.onceki * r.yuzde/100;
+      const toplam = r.onceki + zam;
+      const kdv = toplam*0.20;
+      const kdvHaric = toplam - kdv;
+      sumOnceki+=r.onceki; sumToplam+=toplam; sumKdv+=kdv; sumKdvHaric+=kdvHaric;
+
+      const row = el('div',{class:'fiyat-row'});
+      const inpOnceki = el('input',{type:'number', inputmode:'decimal'});
+      inpOnceki.value = r.onceki;
+      inpOnceki.placeholder='Önceki fiyat';
+      inpOnceki.oninput = ()=>{ r.onceki = parseFloat(inpOnceki.value)||0; renderFiyatList(); saveDraft(); };
+      const inpYuzde = el('input',{type:'number', inputmode:'decimal'});
+      inpYuzde.value = r.yuzde;
+      inpYuzde.oninput = ()=>{ r.yuzde = parseFloat(inpYuzde.value)||0; renderFiyatList(); saveDraft(); };
+      const delBtn = el('button',{class:'del'}, '✕');
+      delBtn.onclick = ()=>{ mod.rows.splice(i,1); renderFiyatList(); saveDraft(); };
+      row.appendChild(inpOnceki); row.appendChild(inpYuzde); row.appendChild(delBtn);
+      list.appendChild(row);
+      list.appendChild(el('div',{class:'fiyat-result'},
+        `Zam %${fmt(r.yuzde)} → +${fmt(zam)} ₺  ·  Toplam ${fmt(toplam)} ₺  ·  KDV(20%) ${fmt(kdv)} ₺  ·  KDV Hariç ${fmt(kdvHaric)} ₺`));
+    });
+    document.getElementById('fiyatToplam').innerHTML =
+      `<table class="cutlist"><tbody>
+        <tr><td class="label">Önceki toplam</td><td class="num">${fmt(sumOnceki)} ₺</td></tr>
+        <tr><td class="label">Zamlı toplam</td><td class="num">${fmt(sumToplam)} ₺</td></tr>
+        <tr><td class="label">KDV toplam</td><td class="num">${fmt(sumKdv)} ₺</td></tr>
+        <tr><td class="label">KDV hariç toplam</td><td class="num">${fmt(sumKdvHaric)} ₺</td></tr>
+      </tbody></table>`;
+  }
+  renderFiyatList();
+}
+
+function renderOzet(){
+  const main = document.getElementById('main');
+  main.innerHTML='';
+  document.getElementById('hSub').textContent = 'Tüm modüllerin güncel kesim listeleri, tek ekranda.';
+  main.appendChild(el('div',{class:'module-head'},[
+    el('div',{class:'kicker'},'ÖZET'),
+    el('h2',{},'Genel Kesim Listesi'),
+    el('p',{},'Her modülde girdiğiniz ölçülere göre otomatik güncellenir.'),
+  ]));
+  tabOrder.filter(k=>k!=='fiyat' && k!=='ozet').forEach(key=>{
+    const mod = modules[key];
+    const {rows} = mod.compute(mod.state);
+    const totalParts = rows.reduce((a,r)=> a + (typeof r[3]==='number' ? r[3] : 0), 0);
+    const box = el('div',{class:'module-list-item'});
+    box.appendChild(el('h3',{},[mod.title, el('span',{class:'cnt'}, `${totalParts} parça`)]));
+    box.appendChild(buildCutTable(rows));
+    main.appendChild(box);
+  });
+}
+
+function renderKayit(){
+  const main = document.getElementById('main');
+  main.innerHTML='';
+  document.getElementById('hSub').textContent = 'Müşteri bazlı kayıt geçmişi — bu cihazda saklanır.';
+  main.appendChild(el('div',{class:'module-head'},[
+    el('div',{class:'kicker'},'KAYIT'),
+    el('h2',{},'Müşteri Kayıtları'),
+    el('p',{},'Şu anki tüm modül ölçülerini ve fiyat kalemlerini bir müşteri adıyla kaydedin, sonra tekrar açın.'),
+  ]));
+
+  const savePanel = el('section',{class:'panel'});
+  savePanel.appendChild(el('div',{class:'panel-title'},'Şu Anki Ölçüleri Kaydet'));
+  const nameInput = el('input',{type:'text', placeholder:'Müşteri / iş adı (örn. Ayşe Hanım - Mutfak)'});
+  const saveBtn = el('button',{class:'btn rust'}, 'Kaydet');
+  saveBtn.onclick = ()=>{
+    const name = nameInput.value.trim();
+    if(!name){ nameInput.focus(); return; }
+    addRecord(name);
+    nameInput.value='';
+    renderKayit();
+  };
+  savePanel.appendChild(el('div',{class:'record-save-row'},[nameInput, saveBtn]));
+  main.appendChild(savePanel);
+
+  const listPanel = el('section',{class:'panel'});
+  listPanel.appendChild(el('div',{class:'panel-title'},'Kayıtlı Müşteriler'));
+  const records = getRecords();
+  if(records.length===0){
+    listPanel.appendChild(el('div',{class:'empty-hint'}, 'Henüz kayıt yok. Yukarıdan bir isimle kaydedin.'));
+  } else {
+    records.forEach(rec=>{
+      const card = el('div',{class:'record-card'});
+      card.appendChild(el('div',{class:'rc-top'},[
+        el('div',{class:'rc-name'}, rec.name),
+        el('div',{class:'rc-date'}, rec.date),
+      ]));
+      const actions = el('div',{class:'rc-actions'});
+      const loadBtn = el('button',{class:'btn'}, 'Yükle');
+      loadBtn.onclick = ()=>{ loadRecord(rec.id); currentTab='ankastre'; renderAll(); };
+      const delBtn = el('button',{class:'btn outline'}, 'Sil');
+      delBtn.onclick = ()=>{ deleteRecord(rec.id); renderKayit(); };
+      actions.appendChild(loadBtn); actions.appendChild(delBtn);
+      card.appendChild(actions);
+      listPanel.appendChild(card);
+    });
+  }
+  main.appendChild(listPanel);
+}
+
+function renderAll(){
+  renderTabs();
+  if(currentTab==='ozet') renderOzet();
+  else if(currentTab==='kayit') renderKayit();
+  else renderModulePanel(currentTab);
+}
+
+try{
+  loadDraft();
+  renderAll();
+}catch(e){
+  try{ renderAll(); }catch(e2){}
+}
+</script>
+</body>
+</html>s
